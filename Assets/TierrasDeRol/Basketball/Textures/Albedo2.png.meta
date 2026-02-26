@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: da8224c1ad7003c428c46b6ca8fbf68a
+AssetOrigin:
+  serializedVersion: 1
+  productId: 313677
+  packageName: Basketball Realistic
+  packageVersion: 1.0
+  assetPath: Assets/TierrasDeRol/Basketball/Textures/Albedo2.png
+  uploadId: 739721
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -141,10 +148,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 313677
-  packageName: Basketball Realistic
-  packageVersion: 1.0
-  assetPath: Assets/TierrasDeRol/Basketball/Textures/Albedo2.png
-  uploadId: 739721
