@@ -77,16 +77,21 @@ public class Basketball_Throw : MonoBehaviour
 
     private void OnGrab(SelectEnterEventArgs args)
     {
+        // Eğer tutan şey bir Socket (yuva) ise işlem yapma
+        if (args.interactorObject is XRSocketInteractor) return;
+
         lineRenderer.enabled = true;
         isGrabbed = true;
         interactorTransform = args.interactorObject.transform;
-        lineRenderer.enabled = true;
         Debug.Log("🤚 Top tutuldu - kavis çizgisi aktif.");
     }
 
     // Top bırakıldığında (G tuşunu bıraktığınızda) otomatik olarak kavis yönünde fırlatılır!
     private void OnRelease(SelectExitEventArgs args)
     {
+        // Eğer bırakan şey bir Socket (yuva) ise fırlatma yapma
+        if (args.interactorObject is XRSocketInteractor) return;
+
         isGrabbed = false;
         lineRenderer.enabled = false;
 
