@@ -1289,7 +1289,7 @@ MonoBehaviour:
   bulletSpeed: 150
   bulletLifeTime: 3
   bulletRotationOffset: {x: 90, y: 0, z: 0}
-  fireSound: {fileID: 0}
+  fireSound: {fileID: 8300000, guid: b61132424af9fac10905493c1a81f442, type: 3}
   currentMagazine: {fileID: 0}
 --- !u!1 &568509208 stripped
 GameObject:
@@ -2766,19 +2766,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1270047856}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!134 &1306606675
-PhysicsMaterial:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: ' (Instance)'
-  serializedVersion: 2
-  m_DynamicFriction: 0.6
-  m_StaticFriction: 0.6
-  m_Bounciness: 0
-  m_FrictionCombine: 0
-  m_BounceCombine: 0
 --- !u!134 &1310758027
 PhysicsMaterial:
   m_ObjectHideFlags: 0
@@ -2886,6 +2873,19 @@ MonoBehaviour:
   m_OnGroundedChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!134 &1351284462
+PhysicsMaterial:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ' (Instance) (Instance)'
+  serializedVersion: 2
+  m_DynamicFriction: 0.6
+  m_StaticFriction: 0.6
+  m_Bounciness: 0
+  m_FrictionCombine: 0
+  m_BounceCombine: 0
 --- !u!1 &1387943811
 GameObject:
   m_ObjectHideFlags: 0
@@ -5177,6 +5177,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3320039120949438946, guid: f06a955b5cf57fd61975544b637de631, type: 3}
+      propertyPath: m_Volume
+      value: 0.393
+      objectReference: {fileID: 0}
+    - target: {fileID: 3320039120949438946, guid: f06a955b5cf57fd61975544b637de631, type: 3}
       propertyPath: m_Resource
       value: 
       objectReference: {fileID: 8300000, guid: b61132424af9fac10905493c1a81f442, type: 3}
@@ -5191,7 +5195,7 @@ PrefabInstance:
     - target: {fileID: 4219833106136076098, guid: f06a955b5cf57fd61975544b637de631, type: 3}
       propertyPath: m_Material
       value: 
-      objectReference: {fileID: 1306606675}
+      objectReference: {fileID: 1351284462}
     - target: {fileID: 4612357719376900154, guid: f06a955b5cf57fd61975544b637de631, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.657

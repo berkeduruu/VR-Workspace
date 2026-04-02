@@ -67,7 +67,11 @@ public class VRWeapon : MonoBehaviour
         if (rb != null) rb.linearVelocity = firePoint.forward * bulletSpeed;
 
         currentMagazine.UseAmmo();
-        if (fireSound != null) audioSource.PlayOneShot(fireSound);
+        if (fireSound != null)
+        {
+            audioSource.clip = fireSound;
+            audioSource.Play();
+        }
 
         Destroy(bullet, bulletLifeTime);
     }
