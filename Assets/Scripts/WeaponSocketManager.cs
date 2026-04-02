@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using System.Collections.Generic;
 
 public class WeaponSocketManager : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class WeaponSocketManager : MonoBehaviour
     public GameObject ghostMagazine; // Indicator visual
     private XRSocketInteractor socket;
     private XRGrabInteractable weaponGrab;
+
+    // Track active magazines to restore their attach points
+    private Dictionary<XRGrabInteractable, Transform> originalAttachPoints = new Dictionary<XRGrabInteractable, Transform>();
 
     void Awake()
     {
@@ -37,6 +41,7 @@ public class WeaponSocketManager : MonoBehaviour
 
         socket.selectEntered.AddListener(OnMagazineInserted);
         socket.selectExited.AddListener(OnMagazineRemoved);
+        socket.hoverExited.AddListener(HandleHoverExited);
         
         if (ghostMagazine != null) 
             ghostMagazine.SetActive(false);
@@ -55,6 +60,18 @@ public class WeaponSocketManager : MonoBehaviour
                 {
                     if (interactable is XRGrabInteractable grabInteractable)
                     {
+                        // --- DUAL ATTACH LOGIC: Swap to SocketAttach on Hover ---
+                        Magazine mag = grabInteractable.GetComponent<Magazine>();
+                        if (mag != null && mag.socketAttach != null)
+                        {
+                            // Store original if not already stored
+                            if (!originalAttachPoints.ContainsKey(grabInteractable))
+                                originalAttachPoints[grabInteractable] = grabInteractable.attachTransform;
+
+                            // Swap to socket point
+                            grabInteractable.attachTransform = mag.socketAttach;
+                        }
+
                         if (grabInteractable.isSelected)
                         {
                             isMagazineHeldNear = true;
@@ -65,7 +82,6 @@ public class WeaponSocketManager : MonoBehaviour
             }
 
             // RULE 1: The socket only "accepts" the magazine if the weapon itself is being held.
-            // This allows snapping on release because the weapon is still held when the magazine is let go.
             socket.allowSelect = isWeaponHeld;
 
             // RULE 2: Show ghost ONLY when weapon is held AND a magazine is being held near the magwell.
@@ -96,5 +112,38 @@ public class WeaponSocketManager : MonoBehaviour
     {
         if (weapon != null)
             weapon.currentMagazine = null;
+
+        if (args.interactableObject is XRGrabInteractable grabInteractable)
+        {
+            RestoreAttachPoint(grabInteractable);
+        }
+    }
+
+    private void RestoreAttachPoint(XRGrabInteractable grabInteractable)
+    {
+        // Restore to original hand attach point
+        if (originalAttachPoints.TryGetValue(grabInteractable, out Transform original))
+        {
+            grabInteractable.attachTransform = original;
+            originalAttachPoints.Remove(grabInteractable);
+        }
+        else
+        {
+            // Fallback: If not in dictionary, try to find the HandAttach on the Magazine itself
+            Magazine mag = grabInteractable.GetComponent<Magazine>();
+            if (mag != null && mag.handAttach != null)
+            {
+                grabInteractable.attachTransform = mag.handAttach;
+            }
+        }
+    }
+
+    // Cleanup on Hover Exit to restore hand-durus if user pulls away without snapping
+    public void HandleHoverExited(HoverExitEventArgs args)
+    {
+        if (args.interactableObject is XRGrabInteractable grabInteractable)
+        {
+            RestoreAttachPoint(grabInteractable);
+        }
     }
 }

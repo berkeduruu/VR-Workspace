@@ -8,6 +8,10 @@ public class Magazine : MonoBehaviour
     public int ammoCount = 15;
     public int maxAmmoCount = 15;
 
+    [Header("Attach Points")]
+    public Transform handAttach;
+    public Transform socketAttach;
+
     public bool HasAmmo()
     {
         return ammoCount > 0;
