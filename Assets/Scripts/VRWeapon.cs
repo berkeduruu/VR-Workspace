@@ -12,6 +12,7 @@ public class VRWeapon : MonoBehaviour
     public Transform firePoint;
     public float bulletSpeed = 40f;
     public float bulletLifeTime = 3f;
+    public Vector3 bulletRotationOffset = new Vector3(90, 0, 0);
 
     public AudioClip fireSound;
     private AudioSource audioSource;
@@ -60,7 +61,8 @@ public class VRWeapon : MonoBehaviour
         if (currentMagazine == null || !currentMagazine.HasAmmo()) return;
         if (firePoint == null) return;
 
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        Quaternion rotation = Quaternion.LookRotation(firePoint.forward) * Quaternion.Euler(bulletRotationOffset);
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, rotation);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         if (rb != null) rb.linearVelocity = firePoint.forward * bulletSpeed;
 
