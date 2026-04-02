@@ -8,27 +8,32 @@ public class WeaponSocketManager : MonoBehaviour
     public VRWeapon weapon;
     public GameObject ghostMagazine; // Indicator visual
     private XRSocketInteractor socket;
+    private XRGrabInteractable weaponGrab;
 
     void Awake()
     {
         socket = GetComponent<XRSocketInteractor>();
         
+        if (weapon != null)
+            weaponGrab = weapon.GetComponent<XRGrabInteractable>();
+
         // --- CORE FIX: Prevent Weapon Grab from stealing the Socket's Trigger Collider ---
-        XRGrabInteractable parentGrab = GetComponentInParent<XRGrabInteractable>();
-        if (parentGrab != null && parentGrab.colliders.Count == 0)
+        if (weaponGrab != null && (weaponGrab.colliders == null || weaponGrab.colliders.Count == 0))
         {
-            Collider[] allChildColliders = parentGrab.GetComponentsInChildren<Collider>(true);
+            Collider[] allChildColliders = weaponGrab.GetComponentsInChildren<Collider>(true);
             foreach (var col in allChildColliders)
             {
-                // Add all colliders to the weapon's grab EXCEPT this socket's collider
-                if (col.GetComponent<XRSocketInteractor>() == null)
+                if (col.GetComponent<XRSocketInteractor>() == null && !col.isTrigger)
                 {
-                    parentGrab.colliders.Add(col);
+                    weaponGrab.colliders.Add(col);
                 }
             }
         }
 
         if (socket == null) return;
+
+        // Ensure no magazine is pre-selected on start
+        socket.startingSelectedInteractable = null;
 
         socket.selectEntered.AddListener(OnMagazineInserted);
         socket.selectExited.AddListener(OnMagazineRemoved);
@@ -39,10 +44,10 @@ public class WeaponSocketManager : MonoBehaviour
 
     void Update()
     {
-        if (socket != null && ghostMagazine != null)
+        if (socket != null && weaponGrab != null)
         {
-            // Only show the ghost when a magazine is hovering AND it is currently being held.
-            bool shouldGhostBeVisible = false;
+            bool isWeaponHeld = weaponGrab.isSelected;
+            bool isMagazineHeldNear = false;
 
             if (socket.hasHover && !socket.hasSelection)
             {
@@ -50,20 +55,28 @@ public class WeaponSocketManager : MonoBehaviour
                 {
                     if (interactable is XRGrabInteractable grabInteractable)
                     {
-                        // Check if the magazine is actively held by a hand
                         if (grabInteractable.isSelected)
                         {
-                            shouldGhostBeVisible = true;
-                            break; // Show ghost!
+                            isMagazineHeldNear = true;
+                            break;
                         }
                     }
                 }
             }
 
-            // Toggle visibility to match the held state
-            if (ghostMagazine.activeSelf != shouldGhostBeVisible)
+            // RULE 1: The socket only "accepts" the magazine if the weapon itself is being held.
+            // This allows snapping on release because the weapon is still held when the magazine is let go.
+            socket.allowSelect = isWeaponHeld;
+
+            // RULE 2: Show ghost ONLY when weapon is held AND a magazine is being held near the magwell.
+            bool shouldGhostBeVisible = isWeaponHeld && isMagazineHeldNear;
+
+            if (ghostMagazine != null)
             {
-                ghostMagazine.SetActive(shouldGhostBeVisible);
+                if (ghostMagazine.activeSelf != shouldGhostBeVisible)
+                {
+                    ghostMagazine.SetActive(shouldGhostBeVisible);
+                }
             }
         }
     }
