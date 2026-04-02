@@ -1,37 +1,112 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Unity.XR.CoreUtils;
 
 public class SimulatorOffsetFixer : MonoBehaviour
 {
-    void Start()
+    [Header("Offset Settings")]
+    [Tooltip("Starting distance from camera offset root")]
+    [SerializeField] private float defaultZOffset = -0.25f;
+    [SerializeField] private float minZOffset = -0.8f;
+    [SerializeField] private float maxZOffset = 0.4f;
+    [SerializeField] private float offsetSpeed = 1.0f;
+
+    [Header("Manual Assignments (Optional)")]
+    [SerializeField] private Transform leftHand;
+    [SerializeField] private Transform rightHand;
+
+    // Current offsets for each hand
+    private float leftZOffset;
+    private float rightZOffset;
+
+    // Container references
+    private Transform containerLeft;
+    private Transform containerRight;
+
+    private void Awake()
     {
-        // Give the simulator a split second to initialize
-        Invoke(nameof(ApplyFix), 0.1f);
+        // Initialize offsets with default value
+        leftZOffset = defaultZOffset;
+        rightZOffset = defaultZOffset;
+
+        Invoke(nameof(SetupHierarchyOffset), 0.1f);
     }
 
-    private void ApplyFix()
+    private void SetupHierarchyOffset()
     {
-        // Try direct children first (often named LeftHand/RightHand or similar in current scene)
-        Transform left = transform.Find("Left_Hand");
-        Transform right = transform.Find("Right_Hand");
-
-        // If not children, search in descendants
-        if (left == null) left = FindChildRecursive(transform, "Left");
-        if (right == null) right = FindChildRecursive(transform, "Right");
-
-        if (left != null) left.localPosition = new Vector3(-0.2f, -0.3f, 0.15f);
-        if (right != null) right.localPosition = new Vector3(0.2f, -0.3f, 0.15f);
-
-        Debug.Log("SimulatorOffsetFixer: Hand offsets adjusted for easy reach.");
-    }
-
-    private Transform FindChildRecursive(Transform parent, string nameContains)
-    {
-        foreach (Transform child in parent)
+        if (leftHand == null || rightHand == null)
         {
-            if (child.name.Contains(nameContains)) return child;
-            Transform found = FindChildRecursive(child, nameContains);
-            if (found != null) return found;
+            XROrigin xrOrigin = FindAnyObjectByType<XROrigin>();
+            if (xrOrigin != null && xrOrigin.CameraFloorOffsetObject != null)
+            {
+                Transform offsetRoot = xrOrigin.CameraFloorOffsetObject.transform;
+                if (leftHand == null) leftHand = offsetRoot.Find("Left_Hand");
+                if (rightHand == null) rightHand = offsetRoot.Find("Right_Hand");
+            }
         }
-        return null;
+
+        if (leftHand != null) containerLeft = CreateOffsetParent(leftHand, "Left_Hand_Simulator_Offset", leftZOffset);
+        if (rightHand != null) containerRight = CreateOffsetParent(rightHand, "Right_Hand_Simulator_Offset", rightZOffset);
+    }
+
+    private Transform CreateOffsetParent(Transform hand, string name, float initialZ)
+    {
+        Transform originalParent = hand.parent;
+        GameObject container = new GameObject(name);
+        container.transform.SetParent(originalParent, false);
+        container.transform.localPosition = new Vector3(0, 0, initialZ);
+        container.transform.localRotation = Quaternion.identity;
+        hand.SetParent(container.transform, false);
+        return container.transform;
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current == null) return;
+
+        // 1. Determine which hand is selected
+        bool leftSelected = Keyboard.current.leftShiftKey.isPressed;
+        bool rightSelected = Keyboard.current.spaceKey.isPressed;
+
+        // 2. Read Input
+        float moveInput = 0f;
+        if (Keyboard.current.rightBracketKey.isPressed || Keyboard.current.numpadPlusKey.isPressed) moveInput += 1f;
+        if (Keyboard.current.leftBracketKey.isPressed || Keyboard.current.numpadMinusKey.isPressed) moveInput -= 1f;
+
+        if (Mathf.Abs(moveInput) > 0.01f)
+        {
+            float delta = moveInput * Time.deltaTime * offsetSpeed;
+
+            // 3. Apply to selected hand(s)
+            if (leftSelected)
+            {
+                leftZOffset = Mathf.Clamp(leftZOffset + delta, minZOffset, maxZOffset);
+                ApplyOffset(containerLeft, leftZOffset);
+            }
+            
+            if (rightSelected)
+            {
+                rightZOffset = Mathf.Clamp(rightZOffset + delta, minZOffset, maxZOffset);
+                ApplyOffset(containerRight, rightZOffset);
+            }
+
+            // If neither is specifically held, maybe the user wants to move both?
+            // (Optional: remove this if you only want it to work when a key is held)
+            if (!leftSelected && !rightSelected)
+            {
+                leftZOffset = Mathf.Clamp(leftZOffset + delta, minZOffset, maxZOffset);
+                rightZOffset = Mathf.Clamp(rightZOffset + delta, minZOffset, maxZOffset);
+                ApplyOffset(containerLeft, leftZOffset);
+                ApplyOffset(containerRight, rightZOffset);
+            }
+        }
+    }
+
+    private void ApplyOffset(Transform container, float zOffset)
+    {
+        if (container != null)
+        {
+            container.localPosition = new Vector3(0, 0, zOffset);
+        }
     }
 }
