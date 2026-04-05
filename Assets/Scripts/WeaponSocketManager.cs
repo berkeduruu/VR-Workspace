@@ -11,6 +11,11 @@ public class WeaponSocketManager : MonoBehaviour
     private XRSocketInteractor socket;
     private XRGrabInteractable weaponGrab;
 
+    // Ghost material logic
+    private Material ghostMaterial;
+    private Color originalGhostColor;
+    private Color extractGhostColor = new Color(1f, 0f, 0f, 0.4f); // Red with transparency
+
     // Track active magazines to restore their attach points
     private Dictionary<XRGrabInteractable, Transform> originalAttachPoints = new Dictionary<XRGrabInteractable, Transform>();
 
@@ -44,17 +49,34 @@ public class WeaponSocketManager : MonoBehaviour
         socket.hoverExited.AddListener(HandleHoverExited);
         
         if (ghostMagazine != null) 
+        {
             ghostMagazine.SetActive(false);
+            Renderer ghostRenderer = ghostMagazine.GetComponent<Renderer>();
+            if (ghostRenderer != null && ghostRenderer.material != null)
+            {
+                ghostMaterial = ghostRenderer.material; // creates an instance
+                if (ghostMaterial.HasProperty("_BaseColor"))
+                    originalGhostColor = ghostMaterial.GetColor("_BaseColor");
+                else if (ghostMaterial.HasProperty("_Color"))
+                    originalGhostColor = ghostMaterial.color;
+                else
+                    originalGhostColor = new Color(0f, 0.5f, 1f, 0.5f); // Default
+            }
+        }
     }
 
     void Update()
     {
-        if (socket != null && weaponGrab != null)
-        {
-            bool isWeaponHeld = weaponGrab.isSelected;
-            bool isMagazineHeldNear = false;
+        if (socket == null || weaponGrab == null) return;
 
-            if (socket.hasHover && !socket.hasSelection)
+        bool isWeaponHeld = weaponGrab.isSelected;
+        bool isMagazineHeldNear = false;
+        bool isHandHoveringExtract = false;
+
+        if (!socket.hasSelection)
+        {
+            // Socket is empty, check if hand with magazine is nearing
+            if (socket.hasHover)
             {
                 foreach (var interactable in socket.interactablesHovered)
                 {
@@ -80,20 +102,55 @@ public class WeaponSocketManager : MonoBehaviour
                     }
                 }
             }
-
-            // RULE 1: The socket only "accepts" the magazine if the weapon itself is being held.
-            socket.allowSelect = isWeaponHeld;
-
-            // RULE 2: Show ghost ONLY when weapon is held AND a magazine is being held near the magwell.
-            bool shouldGhostBeVisible = isWeaponHeld && isMagazineHeldNear;
-
-            if (ghostMagazine != null)
+        }
+        else
+        {
+            // Socket is filled, check if an empty hand (NOT the socket) is approaching it
+            IXRSelectInteractable selected = socket.firstInteractableSelected;
+            if (selected is XRGrabInteractable grabMag)
             {
-                if (ghostMagazine.activeSelf != shouldGhostBeVisible)
+                // Check if any interactor hovering the magazine is NOT the socket itself
+                foreach (var interactor in grabMag.interactorsHovering)
                 {
-                    ghostMagazine.SetActive(shouldGhostBeVisible);
+                    if (interactor is IXRInteractor ixr && (Object)ixr != (Object)socket)
+                    {
+                        isHandHoveringExtract = true;
+                        break;
+                    }
                 }
             }
+        }
+
+        if (ghostMagazine != null)
+        {
+            bool shouldShowBlue = isWeaponHeld && isMagazineHeldNear && !socket.hasSelection;
+            bool shouldShowRed = isHandHoveringExtract;
+
+            if (shouldShowBlue)
+            {
+                ghostMagazine.SetActive(true);
+                SetGhostColor(originalGhostColor);
+            }
+            else if (shouldShowRed)
+            {
+                ghostMagazine.SetActive(true);
+                SetGhostColor(extractGhostColor);
+            }
+            else
+            {
+                ghostMagazine.SetActive(false);
+            }
+        }
+    }
+
+    private void SetGhostColor(Color newColor)
+    {
+        if (ghostMaterial != null)
+        {
+            if (ghostMaterial.HasProperty("_BaseColor"))
+                ghostMaterial.SetColor("_BaseColor", newColor);
+            else if (ghostMaterial.HasProperty("_Color"))
+                ghostMaterial.color = newColor;
         }
     }
 
@@ -104,6 +161,10 @@ public class WeaponSocketManager : MonoBehaviour
         {
             weapon.currentMagazine = mag;
             if (ghostMagazine != null) ghostMagazine.SetActive(false);
+            
+            // --- PHYSICS FIX: Ignore collision between Weapon and Magazine to prevent drifting ---
+            ToggleCollision(mag, true);
+            
             Debug.Log($"Magazine inserted: {mag.name}");
         }
     }
@@ -113,9 +174,33 @@ public class WeaponSocketManager : MonoBehaviour
         if (weapon != null)
             weapon.currentMagazine = null;
 
+        Magazine mag = args.interactableObject.transform.GetComponent<Magazine>();
+        if (mag != null)
+        {
+            // Re-enable collision when removed
+            ToggleCollision(mag, false);
+        }
+
         if (args.interactableObject is XRGrabInteractable grabInteractable)
         {
             RestoreAttachPoint(grabInteractable);
+        }
+    }
+
+    private void ToggleCollision(Magazine mag, bool ignore)
+    {
+        if (weapon == null || mag == null) return;
+        
+        Collider[] weaponColliders = weapon.GetComponentsInChildren<Collider>();
+        Collider[] magColliders = mag.GetComponentsInChildren<Collider>();
+
+        foreach (var wCol in weaponColliders)
+        {
+            foreach (var mCol in magColliders)
+            {
+                if (wCol != null && mCol != null)
+                    Physics.IgnoreCollision(wCol, mCol, ignore);
+            }
         }
     }
 
