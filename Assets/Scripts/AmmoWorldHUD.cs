@@ -21,8 +21,10 @@ public class AmmoWorldHUD : MonoBehaviour
     public Transform leftHand;
 
     [Header("World HUD Settings")]
-    public float sidePanelOffset = 0.14f;
-    public float verticalOffset  = 0.05f;
+    [Tooltip("Local offset for HUD when holding weapon in right hand")]
+    public Vector3 rightHandOffset = new Vector3(-0.14f, 0.05f, 0f);
+    [Tooltip("Local offset for HUD when holding weapon in left hand")]
+    public Vector3 leftHandOffset = new Vector3(0.14f, 0.05f, 0f);
     public float worldCanvasScale = 0.0001f;
     public Vector2 worldAmmoTextPosition = new Vector2(20f, 95f);
 
@@ -106,10 +108,12 @@ public class AmmoWorldHUD : MonoBehaviour
         worldCanvas.transform.localScale = Vector3.one * worldCanvasScale;
         worldAmmoTxt.rectTransform.anchoredPosition = worldAmmoTextPosition;
 
-        // Position: opposite side of grabbing hand
-        Transform wt = trackedWeapon.transform;
-        float sign = weaponInRightHand ? -1f : 1f; // right hand → panel on left
-        Vector3 pos = wt.position + wt.right * (sign * sidePanelOffset) + Vector3.up * verticalOffset;
+        // Position based on hand holding the weapon.
+        // The offsets are manually configurable in the inspector as Local Offsets relative to the weapon.
+        Vector3 localOffset = weaponInRightHand ? rightHandOffset : leftHandOffset;
+        
+        // Convert the local offset into world space based on the weapon's transform
+        Vector3 pos = trackedWeapon.transform.TransformPoint(localOffset);
         worldCanvas.transform.position = pos;
 
         // Bill-board toward camera
@@ -124,11 +128,10 @@ public class AmmoWorldHUD : MonoBehaviour
     // ─── screen HUD ───────────────────────────────────────────────────────────
     void RefreshScreen()
     {
-        screenBg.sprite = spriteNoWeapon;
-        screenAmmoTxt.text = "---";
-
-        // Apply text position dynamically for real-time editor tweaking
-        screenAmmoTxt.rectTransform.anchoredPosition = screenAmmoTextPosition;
+        // Hide screen HUD entirely when no weapon is held
+        // ToggleGO handles disabling the parent canvas in Update() but just in case:
+        if (screenBg != null) screenBg.gameObject.SetActive(false);
+        if (screenAmmoTxt != null) screenAmmoTxt.gameObject.SetActive(false);
     }
 
     // ─── builders ─────────────────────────────────────────────────────────────
@@ -211,6 +214,10 @@ public class AmmoWorldHUD : MonoBehaviour
         rt.pivot            = new Vector2(0f, 0.5f);
         rt.anchoredPosition = screenAmmoTextPosition;
         rt.sizeDelta        = new Vector2(160f, 50f);
+
+        // Don't show screen initially since no weapon is held
+        screenBg.gameObject.SetActive(false);
+        screenAmmoTxt.gameObject.SetActive(false);
 
         ToggleGO(screenCanvas, false);
     }
