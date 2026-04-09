@@ -113,10 +113,10 @@ TextureImporter:
       name: ammo_asset_0
       rect:
         serializedVersion: 2
-        x: 27
-        y: 538
-        width: 848
-        height: 541
+        x: 9
+        y: 208
+        width: 333
+        height: 211
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -135,10 +135,10 @@ TextureImporter:
       name: ammo_asset_1
       rect:
         serializedVersion: 2
-        x: 920
-        y: 538
-        width: 836
-        height: 541
+        x: 355
+        y: 206
+        width: 327
+        height: 213
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,23 +154,23 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: ammo_asset_2
+      name: ammo_asset_3
       rect:
         serializedVersion: 2
-        x: 1802
-        y: 546
-        width: 832
-        height: 533
+        x: 697
+        y: 206
+        width: 327
+        height: 214
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7fc70c34609f72e49b5589fd8ce75ffc
-      internalID: 158847128
+      spriteID: e6a1cdc949ec43e49a9b7ccaadb092fa
+      internalID: -535121331
       vertices: []
       indices: 
       edges: []
@@ -192,6 +192,8 @@ TextureImporter:
       ammo_asset_0: -1497503437
       ammo_asset_1: 1431065764
       ammo_asset_2: 158847128
+      ammo_asset_3: -535121331
+      ammo_asset_4: 2034093201
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
