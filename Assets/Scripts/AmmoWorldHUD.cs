@@ -1,47 +1,71 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 /// <summary>
-/// Weapon-side ammo HUD using custom sprites.
-/// ammo_asset_0 (green)  = weapon held + has ammo  → world-space beside weapon
-/// ammo_asset_1 (red)    = weapon held + no ammo   → world-space beside weapon
-/// ammo_asset_2 (grey)   = no weapon held           → screen-space bottom-right
+/// Single AmmoWorldHUD system that supports per-weapon layout settings.
+/// Assign a WeaponHUDSettings entry for each weapon prefab you want custom offsets for.
+/// Falls back to "Default Settings" if no match is found.
 /// </summary>
 public class AmmoWorldHUD : MonoBehaviour
 {
-    [Header("Sprites (assign in Inspector)")]
-    public Sprite spriteHasAmmo;
-    public Sprite spriteNoAmmo;
-    public Sprite spriteNoWeapon;
+    // ─── per-weapon settings ──────────────────────────────────────────────────
+    [Serializable]
+    public class WeaponHUDSettings
+    {
+        [Tooltip("Drag the weapon GameObject or Prefab here to match")]
+        public VRWeapon weaponReference;
 
+        [Header("Sprites")]
+        public Sprite spriteHasAmmo;
+        public Sprite spriteNoAmmo;
+
+        [Header("Offsets (weapon-local)")]
+        [Tooltip("HUD position when held in the RIGHT hand")]
+        public Vector3 rightHandOffset = new Vector3(-0.14f, 0.05f, 0f);
+        [Tooltip("HUD position when held in the LEFT hand")]
+        public Vector3 leftHandOffset  = new Vector3( 0.14f, 0.05f, 0f);
+
+        [Header("Canvas")]
+        public float   worldCanvasScale      = 0.0001f;
+        public Vector2 worldAmmoTextPosition = new Vector2(20f, 95f);
+    }
+
+    [Header("Per-Weapon Settings")]
+    [Tooltip("Add one entry per weapon type. Each weapon can have its own sprites and offsets.")]
+    public List<WeaponHUDSettings> weaponSettings = new List<WeaponHUDSettings>();
+
+    [Header("Default / Fallback Settings")]
+    [Tooltip("Used when the held weapon has no matching entry in the list above")]
+    public WeaponHUDSettings defaultSettings = new WeaponHUDSettings();
+
+    // ─── global sprite fallbacks ──────────────────────────────────────────────
+    [Header("Global Sprite Fallbacks")]
+    public Sprite globalSpriteHasAmmo;
+    public Sprite globalSpriteNoAmmo;
+
+    // ─── hand transforms ──────────────────────────────────────────────────────
     [Header("Hand Transforms")]
     public Transform rightHand;
     public Transform leftHand;
-
-    [Header("World HUD Settings")]
-    [Tooltip("Local offset for HUD when holding weapon in right hand")]
-    public Vector3 rightHandOffset = new Vector3(-0.14f, 0.05f, 0f);
-    [Tooltip("Local offset for HUD when holding weapon in left hand")]
-    public Vector3 leftHandOffset = new Vector3(0.14f, 0.05f, 0f);
-    public float worldCanvasScale = 0.0001f;
-    public Vector2 worldAmmoTextPosition = new Vector2(20f, 95f);
 
     [Header("Screen HUD Settings")]
     public Vector2 screenAmmoTextPosition = new Vector2(20f, 35f);
 
     // ─── runtime references ───────────────────────────────────────────────────
-    private Canvas    worldCanvas;
-    private Image     worldBg;
+    private Canvas          worldCanvas;
+    private Image           worldBg;
     private TextMeshProUGUI worldAmmoTxt;
 
-    private Canvas    screenCanvas;
-    private Image     screenBg;
+    private Canvas          screenCanvas;
+    private Image           screenBg;
     private TextMeshProUGUI screenAmmoTxt;
 
-    private VRWeapon  trackedWeapon;
-    private bool      weaponInRightHand;
+    private VRWeapon trackedWeapon;
+    private bool     weaponInRightHand;
 
     // ─── lifecycle ────────────────────────────────────────────────────────────
     void Awake()
@@ -58,26 +82,23 @@ public class AmmoWorldHUD : MonoBehaviour
         ToggleGO(worldCanvas,  hasWeapon);
         ToggleGO(screenCanvas, !hasWeapon);
 
-        if (hasWeapon)
-            RefreshWorld();
-        else
-            RefreshScreen();
+        if (hasWeapon) RefreshWorld();
+        else           RefreshScreen();
     }
 
     // ─── detection ────────────────────────────────────────────────────────────
     void DetectWeapon()
     {
-        trackedWeapon = null;
-        VRWeapon[] all = FindObjectsByType<VRWeapon>(FindObjectsSortMode.None);
+        trackedWeapon    = null;
+        weaponInRightHand = false;
 
+        VRWeapon[] all = FindObjectsByType<VRWeapon>(FindObjectsSortMode.None);
         foreach (VRWeapon w in all)
         {
             XRGrabInteractable grab = w.GetComponent<XRGrabInteractable>();
             if (grab == null || !grab.isSelected) continue;
 
             trackedWeapon = w;
-            weaponInRightHand = false;
-
             foreach (var itr in grab.interactorsSelecting)
             {
                 Transform itrT = ((MonoBehaviour)itr).transform;
@@ -91,32 +112,51 @@ public class AmmoWorldHUD : MonoBehaviour
         }
     }
 
+    // ─── resolve settings for the current weapon ──────────────────────────────
+    WeaponHUDSettings GetSettings()
+    {
+        if (trackedWeapon == null) return defaultSettings;
+
+        foreach (var s in weaponSettings)
+        {
+            // Match by instance or by prefab name (handles instantiated prefabs)
+            if (s.weaponReference == null) continue;
+            if (s.weaponReference == trackedWeapon) return s;
+
+            // fallback: match by root name (prefab instance has "(Clone)" suffix)
+            string cleanHeld = trackedWeapon.name.Replace("(Clone)", "").Trim();
+            string cleanRef  = s.weaponReference.name.Replace("(Clone)", "").Trim();
+            if (cleanHeld == cleanRef) return s;
+        }
+
+        return defaultSettings;
+    }
+
     // ─── world HUD ────────────────────────────────────────────────────────────
     void RefreshWorld()
     {
-        Magazine mag = trackedWeapon.currentMagazine;
-        bool hasAmmo  = mag != null && mag.HasAmmo();
+        Magazine mag     = trackedWeapon.currentMagazine;
+        bool     hasAmmo = mag != null && mag.HasAmmo();
 
-        worldBg.sprite = hasAmmo ? spriteHasAmmo : spriteNoAmmo;
+        WeaponHUDSettings cfg = GetSettings();
 
-        if (mag != null)
-            worldAmmoTxt.text = mag.ammoCount + "/" + mag.maxAmmoCount;
-        else
-            worldAmmoTxt.text = "0  0";
+        // Resolve sprites: per-weapon → global fallback
+        Sprite sHas = cfg.spriteHasAmmo != null ? cfg.spriteHasAmmo : globalSpriteHasAmmo;
+        Sprite sNo  = cfg.spriteNoAmmo  != null ? cfg.spriteNoAmmo  : globalSpriteNoAmmo;
+        worldBg.sprite = hasAmmo ? sHas : sNo;
 
-        // Apply scale and text position dynamically for real-time editor tweaking
-        worldCanvas.transform.localScale = Vector3.one * worldCanvasScale;
-        worldAmmoTxt.rectTransform.anchoredPosition = worldAmmoTextPosition;
+        // Ammo text
+        worldAmmoTxt.text = mag != null ? (mag.ammoCount + "/" + mag.maxAmmoCount) : "0/0";
 
-        // Position based on hand holding the weapon.
-        // The offsets are manually configurable in the inspector as Local Offsets relative to the weapon.
-        Vector3 localOffset = weaponInRightHand ? rightHandOffset : leftHandOffset;
-        
-        // Convert the local offset into world space based on the weapon's transform
-        Vector3 pos = trackedWeapon.transform.TransformPoint(localOffset);
-        worldCanvas.transform.position = pos;
+        // Canvas scale & text position from per-weapon config
+        worldCanvas.transform.localScale           = Vector3.one * cfg.worldCanvasScale;
+        worldAmmoTxt.rectTransform.anchoredPosition = cfg.worldAmmoTextPosition;
 
-        // Bill-board toward camera
+        // Position
+        Vector3 localOffset = weaponInRightHand ? cfg.rightHandOffset : cfg.leftHandOffset;
+        worldCanvas.transform.position = trackedWeapon.transform.TransformPoint(localOffset);
+
+        // Billboard toward camera
         Camera cam = Camera.main;
         if (cam != null)
         {
@@ -128,9 +168,7 @@ public class AmmoWorldHUD : MonoBehaviour
     // ─── screen HUD ───────────────────────────────────────────────────────────
     void RefreshScreen()
     {
-        // Hide screen HUD entirely when no weapon is held
-        // ToggleGO handles disabling the parent canvas in Update() but just in case:
-        if (screenBg != null) screenBg.gameObject.SetActive(false);
+        if (screenBg      != null) screenBg.gameObject.SetActive(false);
         if (screenAmmoTxt != null) screenAmmoTxt.gameObject.SetActive(false);
     }
 
@@ -138,36 +176,31 @@ public class AmmoWorldHUD : MonoBehaviour
     void CreateWorldCanvas()
     {
         var go = new GameObject("AmmoHUD_World");
-        worldCanvas = go.AddComponent<Canvas>();
-        worldCanvas.renderMode = RenderMode.WorldSpace;
+        worldCanvas             = go.AddComponent<Canvas>();
+        worldCanvas.renderMode  = RenderMode.WorldSpace;
         go.AddComponent<CanvasScaler>();
+        go.transform.localScale = Vector3.one * 0.0001f;   // overridden each frame
 
-        // The reference layout is 900x600 units, scaled down via transform
-        go.transform.localScale = Vector3.one * worldCanvasScale;
-
-        // Background
         var bgGO = new GameObject("BG");
         bgGO.transform.SetParent(go.transform, false);
-        worldBg = bgGO.AddComponent<Image>();
+        worldBg              = bgGO.AddComponent<Image>();
         worldBg.preserveAspect = true;
         SetRect(bgGO, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(900, 600));
 
-        // Ammo text — positioned in lower-center of card (matches "Mags:" label area)
         var textGO = new GameObject("AmmoText");
         textGO.transform.SetParent(bgGO.transform, false);
-        worldAmmoTxt = textGO.AddComponent<TextMeshProUGUI>();
+        worldAmmoTxt           = textGO.AddComponent<TextMeshProUGUI>();
         worldAmmoTxt.fontSize  = 120;
         worldAmmoTxt.fontStyle = FontStyles.Bold;
         worldAmmoTxt.color     = Color.white;
         worldAmmoTxt.alignment = TextAlignmentOptions.Left;
-        worldAmmoTxt.text      = "0  0";
+        worldAmmoTxt.text      = "0/0";
 
-        // Align to bottom-center of card: x ~300, y ~80 from bottom
-        RectTransform rt = textGO.GetComponent<RectTransform>();
+        RectTransform rt  = textGO.GetComponent<RectTransform>();
         rt.anchorMin        = new Vector2(0.5f, 0f);
         rt.anchorMax        = new Vector2(0.5f, 0f);
         rt.pivot            = new Vector2(0f, 0.5f);
-        rt.anchoredPosition = worldAmmoTextPosition;
+        rt.anchoredPosition = defaultSettings.worldAmmoTextPosition;
         rt.sizeDelta        = new Vector2(380f, 120f);
 
         ToggleGO(worldCanvas, false);
@@ -176,49 +209,45 @@ public class AmmoWorldHUD : MonoBehaviour
     void CreateScreenCanvas()
     {
         var go = new GameObject("AmmoHUD_Screen");
-        screenCanvas = go.AddComponent<Canvas>();
-        screenCanvas.renderMode  = RenderMode.ScreenSpaceOverlay;
+        screenCanvas              = go.AddComponent<Canvas>();
+        screenCanvas.renderMode   = RenderMode.ScreenSpaceOverlay;
         screenCanvas.sortingOrder = 10;
 
-        CanvasScaler scaler = go.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode      = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        CanvasScaler scaler         = go.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode          = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution  = new Vector2(1920, 1080);
         go.AddComponent<GraphicRaycaster>();
 
-        // Background panel — bottom-right corner
         var bgGO = new GameObject("BG");
         bgGO.transform.SetParent(go.transform, false);
-        screenBg = bgGO.AddComponent<Image>();
+        screenBg               = bgGO.AddComponent<Image>();
         screenBg.preserveAspect = true;
 
-        RectTransform bgRect = bgGO.GetComponent<RectTransform>();
+        RectTransform bgRect    = bgGO.GetComponent<RectTransform>();
         bgRect.anchorMin        = new Vector2(1f, 0f);
         bgRect.anchorMax        = new Vector2(1f, 0f);
         bgRect.pivot            = new Vector2(1f, 0f);
         bgRect.anchoredPosition = new Vector2(-30f, 30f);
         bgRect.sizeDelta        = new Vector2(320f, 213f);
 
-        // Text on top
         var textGO = new GameObject("AmmoText");
         textGO.transform.SetParent(bgGO.transform, false);
-        screenAmmoTxt = textGO.AddComponent<TextMeshProUGUI>();
+        screenAmmoTxt           = textGO.AddComponent<TextMeshProUGUI>();
         screenAmmoTxt.fontSize  = 38;
         screenAmmoTxt.fontStyle = FontStyles.Bold;
         screenAmmoTxt.color     = Color.white;
         screenAmmoTxt.alignment = TextAlignmentOptions.Left;
         screenAmmoTxt.text      = "---";
 
-        RectTransform rt = textGO.GetComponent<RectTransform>();
+        RectTransform rt  = textGO.GetComponent<RectTransform>();
         rt.anchorMin        = new Vector2(0.5f, 0f);
         rt.anchorMax        = new Vector2(0.5f, 0f);
         rt.pivot            = new Vector2(0f, 0.5f);
         rt.anchoredPosition = screenAmmoTextPosition;
         rt.sizeDelta        = new Vector2(160f, 50f);
 
-        // Don't show screen initially since no weapon is held
         screenBg.gameObject.SetActive(false);
         screenAmmoTxt.gameObject.SetActive(false);
-
         ToggleGO(screenCanvas, false);
     }
 
@@ -226,7 +255,7 @@ public class AmmoWorldHUD : MonoBehaviour
     static void SetRect(GameObject go, Vector2 anchorMin, Vector2 anchorMax,
                         Vector2 anchoredPos, Vector2 sizeDelta)
     {
-        RectTransform rt = go.GetComponent<RectTransform>();
+        RectTransform rt    = go.GetComponent<RectTransform>();
         rt.anchorMin        = anchorMin;
         rt.anchorMax        = anchorMax;
         rt.anchoredPosition = anchoredPos;
