@@ -6,10 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/main.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/VRFPS Kit/Scenes/Shooting Range/Shooting Range.unity
+    guid: dbeefb83f89fb6f42b2330fb5b47b6f7
+  - enabled: 1
+    path: Assets/VRFPS Kit/Scenes/Offline Scene/Offline Scene.unity
+    guid: 3f18e5ef4fe5f3c4ba62b8bad0c43854
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 1dad2c96dc94cd74c9ceea84773d50bd, type: 2}
-    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 31222e6d0d875c04e8023fa9be6d6f83, type: 2}
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 205eea77aa837a44b8fb4605a784947b, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4ee9577d97d5eeb46b89085330410761, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 71931ab83710fb54e8d856a4615d0092, type: 2}
   m_UseUCBPForAssetBundles: 0

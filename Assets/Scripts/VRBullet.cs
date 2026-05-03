@@ -1,39 +1,72 @@
 using UnityEngine;
-using EnemyAI;
 
+/// <summary>
+/// Mermi scripti:
+/// - EnemyHealth.TakeDamage() cagirir (headshot dahil)
+/// - TrailRenderer ile parlayan iz
+/// - Hem Collision hem Trigger destegi
+/// </summary>
 public class VRBullet : MonoBehaviour
 {
-    public float damage = 20f;
+    public float damage = 35f;
     public GameObject impactEffect;
 
-    private void OnCollisionEnter(Collision collision)
+    void Awake()
     {
-        // Try to find HealthManager on the hit object or its root
-        HealthManager health = collision.collider.GetComponentInParent<HealthManager>();
-        
-        if (health != null)
-        {
-            health.TakeDamage(collision.contacts[0].point, -collision.contacts[0].normal, damage, collision.collider, gameObject);
-        }
+        // ---- Trail Renderer ----
+        TrailRenderer trail = GetComponent<TrailRenderer>();
+        if (trail == null) trail = gameObject.AddComponent<TrailRenderer>();
 
-        // Optional: spawn impact effect
-        if (impactEffect != null)
-        {
-            Instantiate(impactEffect, collision.contacts[0].point, Quaternion.LookRotation(collision.contacts[0].normal));
-        }
+        trail.time             = 0.15f;
+        trail.startWidth       = 0.04f;
+        trail.endWidth         = 0.005f;
+        trail.minVertexDistance = 0.05f;
+        trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        trail.receiveShadows   = false;
 
+        // URP-compatible unlit material
+        Shader unlitShader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (unlitShader == null) unlitShader = Shader.Find("Unlit/Color");
+        if (unlitShader == null) unlitShader = Shader.Find("Sprites/Default");
+
+        Material mat = new Material(unlitShader);
+        // Bright orange-yellow muzzle flash color
+        mat.color = new Color(1f, 0.7f, 0.05f, 1f);
+        if (mat.HasProperty("_BaseColor"))
+            mat.SetColor("_BaseColor", new Color(1f, 0.7f, 0.05f, 1f));
+
+        trail.material     = mat;
+        trail.startColor   = new Color(1f, 0.85f, 0.1f, 1f);
+        trail.endColor     = new Color(1f, 0.3f,  0f,   0f);
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        DealDamage(col.collider, col.contacts[0].point, -col.contacts[0].normal);
+        SpawnEffect(col.contacts[0].point, col.contacts[0].normal);
         Destroy(gameObject);
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        HealthManager health = other.GetComponentInParent<HealthManager>();
-        
+        DealDamage(other, transform.position, -transform.forward);
+        Destroy(gameObject);
+    }
+
+    void DealDamage(Collider col, Vector3 point, Vector3 dir)
+    {
+        // Walk up parent chain — enemies have HealthManager on root
+        HealthManager health = col.GetComponentInParent<HealthManager>();
         if (health != null)
         {
-            health.TakeDamage(transform.position, transform.forward, damage, other, gameObject);
+            health.TakeDamage(point, dir, damage, col, gameObject);
+            Debug.Log($"[VRBullet] Hit {col.name} for {damage} dmg");
         }
+    }
 
-        Destroy(gameObject);
+    void SpawnEffect(Vector3 point, Vector3 normal)
+    {
+        if (impactEffect != null)
+            Instantiate(impactEffect, point, Quaternion.LookRotation(normal));
     }
 }
