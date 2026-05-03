@@ -114,7 +114,7 @@ namespace VRFPSKit
             //Lock back when magazine is empty
             if (!_firearm.magazine.IsEmpty()) return;
             
-            isLockedBack = true;
+            // isLockedBack = true;
 
             //Detach hand from potential action interactable
             if (_actionInteractable)

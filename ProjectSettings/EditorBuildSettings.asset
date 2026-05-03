@@ -6,11 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/VRFPS Kit/Scenes/Shooting Range/Shooting Range.unity
-    guid: dbeefb83f89fb6f42b2330fb5b47b6f7
-  - enabled: 1
-    path: Assets/VRFPS Kit/Scenes/Offline Scene/Offline Scene.unity
-    guid: 3f18e5ef4fe5f3c4ba62b8bad0c43854
+    path: Assets/Scenes/FPS.unity
+    guid: 3984c5d5fe985f946ada75ddae8e4786
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 205eea77aa837a44b8fb4605a784947b, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4ee9577d97d5eeb46b89085330410761, type: 2}

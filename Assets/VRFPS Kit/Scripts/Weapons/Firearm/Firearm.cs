@@ -47,8 +47,17 @@ namespace VRFPSKit
 
         public void TryShoot()
         {
+            // Auto-chamber logic: If chamber is empty but magazine has rounds, load one automatically
+            if (chamberCartridge.IsNull() && magazine != null && !magazine.IsEmpty())
+            {
+                chamberCartridge = magazine.GetTopCartridge();
+                magazine.RemoveCartridgeFromTop();
+                isHammerCocked = true; 
+                inBattery = true;
+            }
+
             //Can't shoot unless action is in battery
-            if (!inBattery) return;
+            // if (!inBattery) return;
             
             //Drop hammer
             isHammerCocked = false;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace EnemyAI
@@ -55,7 +55,7 @@ namespace EnemyAI
 		public override void TakeDamage(Vector3 location, Vector3 direction, float damage, Collider bodyPart, GameObject origin = null)
 		{
 			// Headshot multiplier. On default values, instantly kills NPC.
-			if (!dead && headshot && bodyPart.transform == anim.GetBoneTransform(HumanBodyBones.Head))
+			if (!dead && headshot && bodyPart != null && bodyPart.transform == anim.GetBoneTransform(HumanBodyBones.Head))
 			{
 				// Default damage multiplier is 10x.
 				damage *= 10;
@@ -89,7 +89,8 @@ namespace EnemyAI
 					Kill();
 
 				// Shooting a dead body? Just apply shot force on the ragdoll part.
-				bodyPart.GetComponent<Rigidbody>().AddForce(100f * direction.normalized, ForceMode.Impulse);
+				if (bodyPart != null && bodyPart.GetComponent<Rigidbody>() != null)
+					bodyPart.GetComponent<Rigidbody>().AddForce(100f * direction.normalized, ForceMode.Impulse);
 			}
 		}
 

@@ -1,9 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
+using VRFPSKit;
 
 // This is a template script for in-game object health manager.
 // Any in-game entity that reacts to a shot must have this script with the public function TakeDamage().
-public class HealthManager : MonoBehaviour
+public class HealthManager : MonoBehaviour, IDamageReciever
 {
+    public void TakeDamage(float damage)
+    {
+        Debug.Log($"[HealthManager] TakeDamage interface called: {damage}");
+        TakeDamage(transform.position, Vector3.up, damage);
+    }
 	// Class to encapsulate damage parameters for the callback function.
 	public class DamageInfo
 	{

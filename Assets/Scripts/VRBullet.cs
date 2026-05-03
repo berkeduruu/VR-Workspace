@@ -55,12 +55,21 @@ public class VRBullet : MonoBehaviour
 
     void DealDamage(Collider col, Vector3 point, Vector3 dir)
     {
-        // Walk up parent chain — enemies have HealthManager on root
+        // Walk up parent chain
         HealthManager health = col.GetComponentInParent<HealthManager>();
         if (health != null)
         {
             health.TakeDamage(point, dir, damage, col, gameObject);
-            Debug.Log($"[VRBullet] Hit {col.name} for {damage} dmg");
+            Debug.Log($"[VRBullet] Hit {col.name} for {damage} dmg (HealthManager)");
+            return;
+        }
+
+        // Try VRFPSKit interface
+        VRFPSKit.IDamageReciever dr = col.GetComponentInParent<VRFPSKit.IDamageReciever>();
+        if (dr != null)
+        {
+            dr.TakeDamage(damage);
+            Debug.Log($"[VRBullet] Hit {col.name} for {damage} dmg (IDamageReciever)");
         }
     }
 

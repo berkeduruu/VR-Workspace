@@ -84,7 +84,7 @@ namespace VRFPSKit
             //Cant fire if trigger hasn't reset yet
             if (_triggerWaitingForReset) return;
             //Cant fire if hammer isnt cocked
-            if(!_firearm.isHammerCocked) return;
+            // if(!_firearm.isHammerCocked) return;
             
             _firearm.TryShoot();
             
