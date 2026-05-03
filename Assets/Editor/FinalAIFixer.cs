@@ -9,10 +9,14 @@ public static class FinalAIFixer
     {
         // 1. Fix Player
         var player = GameObject.Find("VR Player");
+        Transform targetTransform = null;
         if (player != null)
         {
             player.tag = "Player";
-            Debug.Log("Fixed VR Player Tag.");
+            // Target the Main Camera if possible for accurate head tracking
+            var cam = player.GetComponentInChildren<Camera>();
+            targetTransform = cam != null ? cam.transform : player.transform;
+            Debug.Log("Fixed VR Player Tag. Targeting: " + targetTransform.name);
         }
         else
         {
@@ -27,8 +31,11 @@ public static class FinalAIFixer
         var controllers = GameObject.FindObjectsByType<EnemyAI.StateController>(FindObjectsSortMode.None);
         foreach (var c in controllers)
         {
-            // Set Player as aim target
-            if (player != null) c.aimTarget = player.transform;
+            // Set Player (Camera) as aim target
+            if (targetTransform != null) c.aimTarget = targetTransform;
+            
+            // Add Debugger
+            if (c.GetComponent<AIDebugger>() == null) c.gameObject.AddComponent<AIDebugger>();
             
             // Ensure they have a NavMeshAgent and snap it
             var agent = c.GetComponent<NavMeshAgent>();
