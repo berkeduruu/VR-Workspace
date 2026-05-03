@@ -33,7 +33,7 @@ namespace HurricaneVR.Framework.Components
         {
             if (!Rb) TryGetComponent(out Rb);
 
-            if (!Rb || Rb.velocity.sqrMagnitude < Data.SqrMagThreshold)
+            if (!Rb || Rb.linearVelocity.sqrMagnitude < Data.SqrMagThreshold)
                 return;
 
             if (Time.realtimeSinceStartup - _lastHaptic < Data.Timeout)

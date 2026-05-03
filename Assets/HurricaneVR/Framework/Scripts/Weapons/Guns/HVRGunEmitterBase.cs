@@ -32,7 +32,7 @@ namespace HurricaneVR.Framework.Weapons.Guns
         {
             if (!rb)
                 return;
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.transform.position = transform.position;
             rb.transform.rotation = transform.rotation;
@@ -41,7 +41,7 @@ namespace HurricaneVR.Framework.Weapons.Guns
             var xy = Random.insideUnitCircle * LaunchRadius;
             var launchDirection = transform.right + new Vector3(0f, xy.x, xy.y);
 
-            rb.velocity = launchDirection * Random.Range(MinVelocity, MaxVelocity);
+            rb.linearVelocity = launchDirection * Random.Range(MinVelocity, MaxVelocity);
             rb.AddRelativeTorque(
                 Random.Range(MinAngularVelocity.x, MaxAngularVelocity.x),
                 Random.Range(MinAngularVelocity.y, MaxAngularVelocity.y),

@@ -185,7 +185,7 @@ namespace HurricaneVR.Framework.Core.Player
             while (count < 100)
             {
                 yield return new WaitForFixedUpdate();
-                RigidBody.velocity = Vector3.zero;
+                RigidBody.linearVelocity = Vector3.zero;
                 RigidBody.angularVelocity = Vector3.zero;
                 transform.position = Target.position;
                 count++;

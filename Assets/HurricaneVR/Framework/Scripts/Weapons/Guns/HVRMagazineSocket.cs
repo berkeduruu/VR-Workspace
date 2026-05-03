@@ -68,7 +68,7 @@ namespace HurricaneVR.Framework.Weapons.Guns
             while (elapsed < EjectTime && grabbable)
             {
                 grabbable.transform.position = Vector3.MoveTowards(grabbable.transform.position, target, speed * Time.deltaTime);
-                grabbable.Rigidbody.velocity = Vector3.zero;
+                grabbable.Rigidbody.linearVelocity = Vector3.zero;
                 grabbable.Rigidbody.angularVelocity = Vector3.zero;
                 elapsed += Time.deltaTime;
                 yield return null;

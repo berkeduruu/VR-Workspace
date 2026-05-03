@@ -192,11 +192,11 @@ namespace HurricaneVR.Framework.Core.Stabbing
             if (!Settings.CanLock || ManuallyLocked)
                 return;
 
-            if (Joint.xMotion != ConfigurableJointMotion.Locked && Stabber.Rigidbody.velocity.sqrMagnitude < Settings.LockVelocitySquared)
+            if (Joint.xMotion != ConfigurableJointMotion.Locked && Stabber.Rigidbody.linearVelocity.sqrMagnitude < Settings.LockVelocitySquared)
             {
                 if (Stabber.LogJointLock)
                 {
-                    Debug.Log($"Stabber locked: square mag {Stabber.Rigidbody.velocity.sqrMagnitude} < {Settings.LockVelocitySquared}");
+                    Debug.Log($"Stabber locked: square mag {Stabber.Rigidbody.linearVelocity.sqrMagnitude} < {Settings.LockVelocitySquared}");
                 }
 
                 Lock();

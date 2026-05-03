@@ -128,7 +128,7 @@ namespace HurricaneVR.Framework.Core.Stabbing
         {
             if (Rigidbody)
             {
-                _velocity = Rigidbody.velocity;
+                _velocity = Rigidbody.linearVelocity;
             }
 
             foreach (var tracker in _trackers)
@@ -283,10 +283,10 @@ namespace HurricaneVR.Framework.Core.Stabbing
                     continue;
                 }
 
-                Rigidbody.velocity = _velocity;
+                Rigidbody.linearVelocity = _velocity;
                 if (stabbable && otherRB)
                 {
-                    otherRB.velocity = stabbable.Velocity;
+                    otherRB.linearVelocity = stabbable.Velocity;
                     //Debug.Log($"{stabbable.Velocity}");
                 }
 

@@ -67,7 +67,7 @@ namespace HurricaneVR.Framework.Components
             if (test.x > StartPosition.x || test.y > StartPosition.y || test.z > StartPosition.z)
             {
                 transform.localPosition = StartPosition;
-                Rigidbody.velocity = Vector3.zero;
+                Rigidbody.linearVelocity = Vector3.zero;
             }
         }
 

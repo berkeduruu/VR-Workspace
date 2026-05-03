@@ -229,7 +229,7 @@ namespace HurricaneVR.Framework.Weapons.Bow
         {
             Arrow.Rigidbody.sleepThreshold = _previousArrowSleep;
             Arrow.Grabbable.CanBeGrabbed = true;
-            Arrow.Rigidbody.velocity = direction * _shootSpeed;
+            Arrow.Rigidbody.linearVelocity = direction * _shootSpeed;
             Arrow.Rigidbody.angularVelocity = Vector3.zero;
             Arrow.Flying = true;
             Arrow = null;

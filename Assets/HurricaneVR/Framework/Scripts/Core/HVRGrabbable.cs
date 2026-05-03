@@ -1290,7 +1290,7 @@ namespace HurricaneVR.Framework.Core
 
             if (Rigidbody)
             {
-                _recentVelocities.Enqueue(Rigidbody.velocity);
+                _recentVelocities.Enqueue(Rigidbody.linearVelocity);
             }
 
             _recentAngularVelocities.Enqueue(angularVelocity);

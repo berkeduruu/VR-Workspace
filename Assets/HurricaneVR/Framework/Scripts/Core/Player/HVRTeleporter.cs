@@ -991,8 +991,8 @@ namespace HurricaneVR.Framework.Core.Player
             var leftGrabbable = LeftHand.GrabbedTarget;
             var rightGrabbable = RightHand.GrabbedTarget;
 
-            _leftVel = LeftHand.Rigidbody.velocity;
-            _rightVel = RightHand.Rigidbody.velocity;
+            _leftVel = LeftHand.Rigidbody.linearVelocity;
+            _rightVel = RightHand.Rigidbody.linearVelocity;
 
             _leftHeldVel = Vector3.zero;
             _rightHeldVel = Vector3.zero;
@@ -1000,8 +1000,8 @@ namespace HurricaneVR.Framework.Core.Player
             var lrb = leftGrabbable ? leftGrabbable.Rigidbody : null;
             var rrb = rightGrabbable ? rightGrabbable.Rigidbody : null;
 
-            if (lrb) _leftHeldVel = lrb.velocity;
-            if (rrb) _rightHeldVel = rrb.velocity;
+            if (lrb) _leftHeldVel = lrb.linearVelocity;
+            if (rrb) _rightHeldVel = rrb.linearVelocity;
             
             //execute last, hand will disable itself in it's event handler
             BeforeDashTeleport.Invoke(FeetPosition);
@@ -1020,10 +1020,10 @@ namespace HurricaneVR.Framework.Core.Player
             var lrb = leftGrabbable ? leftGrabbable.Rigidbody : null;
             var rrb = rightGrabbable ? rightGrabbable.Rigidbody : null;
 
-            LeftHand.Rigidbody.velocity = _leftVel;
-            RightHand.Rigidbody.velocity = _rightVel;
-            if (lrb) lrb.velocity = _leftHeldVel;
-            if (rrb && rrb != lrb) rrb.velocity = _rightHeldVel;
+            LeftHand.Rigidbody.linearVelocity = _leftVel;
+            RightHand.Rigidbody.linearVelocity = _rightVel;
+            if (lrb) lrb.linearVelocity = _leftHeldVel;
+            if (rrb && rrb != lrb) rrb.linearVelocity = _rightHeldVel;
         }
 
         protected virtual void OnBeforeTeleport()
@@ -1101,8 +1101,8 @@ namespace HurricaneVR.Framework.Core.Player
                 }
             }
 
-            var lv = LeftHand.Rigidbody.velocity;
-            var rv = RightHand.Rigidbody.velocity;
+            var lv = LeftHand.Rigidbody.linearVelocity;
+            var rv = RightHand.Rigidbody.linearVelocity;
 
             var leftObjV = Vector3.zero;
             var rightObjV = Vector3.zero;
@@ -1110,8 +1110,8 @@ namespace HurricaneVR.Framework.Core.Player
             var lrb = leftGrabbable ? leftGrabbable.Rigidbody : null;
             var rrb = rightGrabbable ? rightGrabbable.Rigidbody : null;
 
-            if (lrb) leftObjV = lrb.velocity;
-            if (rrb) rightObjV = rrb.velocity;
+            if (lrb) leftObjV = lrb.linearVelocity;
+            if (rrb) rightObjV = rrb.linearVelocity;
 
             BeforeTeleport.Invoke(FeetPosition);
 
@@ -1149,10 +1149,10 @@ namespace HurricaneVR.Framework.Core.Player
             PositionUpdate.Invoke(FeetPosition);
             AfterTeleport.Invoke();
 
-            LeftHand.Rigidbody.velocity = lv;
-            RightHand.Rigidbody.velocity = rv;
-            if (lrb) lrb.velocity = leftObjV;
-            if (rrb && rrb != lrb) rrb.velocity = rightObjV;
+            LeftHand.Rigidbody.linearVelocity = lv;
+            RightHand.Rigidbody.linearVelocity = rv;
+            if (lrb) lrb.linearVelocity = leftObjV;
+            if (rrb && rrb != lrb) rrb.linearVelocity = rightObjV;
         }
 
         protected virtual Vector3 FeetPosition => CharacterController.transform.position;
