@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 349514443413358675}
   - component: {fileID: 6780733763800322432}
   - component: {fileID: 4438130147091198256}
-  - component: {fileID: 9118306657577976757}
+  - component: {fileID: 4708717808238207398}
   m_Layer: 6
   m_Name: VR Player
   m_TagString: Untagged
@@ -404,20 +404,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 2027135592016775504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9f365cf844c03449bc8973eead2c3c1, type: 3}
+  m_Script: {fileID: 11500000, guid: 75b29b6c6428c984a8a73ffc2d58063b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Mediator: {fileID: 5282302557534838369}
   m_TransformationPriority: 0
-  m_TurnAmount: 45
-  m_DebounceTime: 0.3
+  m_TurnSpeed: 60
   m_EnableTurnLeftRight: 1
   m_EnableTurnAround: 1
-  m_DelayTime: 0
   m_LeftHandTurnInput:
     m_InputSourceMode: 2
     m_InputAction:
-      m_Name: Left Hand Snap Turn
+      m_Name: Left Hand Turn
       m_Type: 0
       m_ExpectedControlType: Vector2
       m_Id: dc0868cd-fbc1-4e01-9a4e-6b6c2bf3bdd4
@@ -431,7 +429,7 @@ MonoBehaviour:
   m_RightHandTurnInput:
     m_InputSourceMode: 2
     m_InputAction:
-      m_Name: Right Hand Snap Turn
+      m_Name: Right Hand Turn
       m_Type: 0
       m_ExpectedControlType: Vector2
       m_Id: 1477bc6a-240d-407b-8955-2c2ac7956e70
@@ -494,7 +492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e070f4c113f0cfd4baab4b85e1163ac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &9118306657577976757
+--- !u!114 &4708717808238207398
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -503,9 +501,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 2027135592016775504}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54fb1cc982ede184abeeb70c0697d868, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e0f56da145d49546afc6c088ad82d21, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VRHeadTrackingEnsurer
+  m_EditorClassIdentifier: VRFPSKit::VRFPSKit.Locomotion.Turning.ContinuousPitchProvider
+  rightHandTurnAction:
+    m_UseReference: 0
+    m_Action:
+      m_Name: 
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 368246a2-d5de-43b8-a786-6c13da5a368a
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  turnSpeed: 60
+  cameraOffset: {fileID: 0}
 --- !u!1 &2229837637206011840
 GameObject:
   m_ObjectHideFlags: 0

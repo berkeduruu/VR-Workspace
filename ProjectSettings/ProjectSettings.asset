@@ -167,7 +167,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.kvp.deneme1
+    Android: com.kvp.denemesel
     Standalone: com.Scuttled-Interactive.VR-FPS-Multiplayer-Kit
   buildNumber:
     Standalone: 0

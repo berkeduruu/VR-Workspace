@@ -293,7 +293,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02216dc19e03eb94aa46a9fe63372b4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actionPullPattern: {fileID: 11400000, guid: 1fb17b4bb60d8e644b6f21dbb439a030, type: 2}
   handMovementDirectionSensitivity: {x: 0, y: 0, z: 15}
   springWeight: 6
   actionInteractable: {fileID: 0}
@@ -516,7 +515,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf4ead128b8cf6b4e994e00d0dfbb8b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shootHaptic: {fileID: 11400000, guid: c5b0c0dee9160824c80bfac6cd0e5bf7, type: 2}
   availableFireModes: 020000000000000001000000
   chamberCartridge:
     caliber: 0
@@ -539,8 +537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f6a9eb2d3b6c1449f1a344e36047aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerPressPattern: {fileID: 11400000, guid: b371cbd49cfc2a84f93468353320e041, type: 2}
-  triggerResetPattern: {fileID: 11400000, guid: 37dc78e011e331947bbbde2c92373e2c, type: 2}
   triggerPressed01Input:
     leftHandAction: {fileID: -4289430672226363583, guid: c348712bda248c246b8c49b3db54643f, type: 3}
     rightHandAction: {fileID: 7904272356298805229, guid: c348712bda248c246b8c49b3db54643f, type: 3}
