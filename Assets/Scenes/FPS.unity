@@ -5502,6 +5502,25 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7244916638109451707, guid: 4ef889434415cf39da0fd6031dc4a636, type: 3}
   m_PrefabInstance: {fileID: 967212965}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &971534492 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7813549929070979257, guid: 795976f63a036ab4e9e8a8a99ca0d171, type: 3}
+  m_PrefabInstance: {fileID: 1874657518}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &971534507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 971534492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d2fe78506df0e040ab698e57ad4620a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  dead: 0
+  health: 500
 --- !u!1001 &1016923606
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7796,6 +7815,10 @@ PrefabInstance:
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
       propertyPath: m_Name
       value: XR Device Simulator
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12279,7 +12302,10 @@ PrefabInstance:
     - {fileID: 42635833505214838, guid: 795976f63a036ab4e9e8a8a99ca0d171, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7813549929070979257, guid: 795976f63a036ab4e9e8a8a99ca0d171, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 971534507}
   m_SourcePrefab: {fileID: 100100000, guid: 795976f63a036ab4e9e8a8a99ca0d171, type: 3}
 --- !u!1 &1919311895
 GameObject:

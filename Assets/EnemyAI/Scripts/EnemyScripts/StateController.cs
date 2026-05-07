@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -103,6 +103,25 @@ namespace EnemyAI
 
 		void Awake()
 		{
+			if (aimTarget == null)
+			{
+				GameObject player = GameObject.FindGameObjectWithTag("Player");
+				if (player == null) player = GameObject.Find("VR Player");
+				if (player == null)
+				{
+					// Try finding by name containing VR Player
+					var all = FindObjectsOfType<GameObject>();
+					foreach(var go in all) {
+						if (go.name.Contains("VR Player")) { player = go; break; }
+					}
+				}
+				if (player != null)
+				{
+					Transform cam = player.transform.Find("Camera Offset/Main Camera");
+					aimTarget = cam != null ? cam : player.transform;
+				}
+			}
+
 			// Setup the references.
 			coverSpot ??= new Dictionary<int, Vector3>();
 			coverSpot[this.GetHashCode()] = Vector3.positiveInfinity;
@@ -130,7 +149,10 @@ namespace EnemyAI
 				coverLookup.Setup(generalStats.coverMask);
 			}
 			// Ensure the target has a health manager component to receive shots.
-			Debug.Assert(aimTarget.root.GetComponent<HealthManager>(), "You must add a health manager to the target");
+			if (aimTarget != null && aimTarget.root.GetComponent<HealthManager>() == null)
+			{
+				Debug.LogWarning("No health manager on target: " + aimTarget.name);
+			}
 		}
 
 		public void Start()
@@ -202,21 +224,25 @@ namespace EnemyAI
 		}
 
 		// The common cast to target test, used by decisions that is based on NPC senses.
+		// The common cast to target test, used by decisions that is based on NPC senses.
 		public bool BlockedSight()
 		{
 			// The test was already performed on that game loop iteration?
 			if (!checkedOnLoop)
 			{
 				checkedOnLoop = true;
+				if (aimTarget == null) return true; // Block sight if no target
+				
 				Vector3 target = default;
 				try
 				{
 					target = aimTarget.position;
 				}
-				catch (UnassignedReferenceException)
+				catch (System.Exception)
 				{
 					// Ensure the NPC has an aim target set.
 					Debug.LogError("Assign an aim target to " + transform.name);
+					return true;
 				}
 				// Get cast to target parameters.
 				Vector3 castOrigin = transform.position + Vector3.up * generalStats.aboveCoverHeight;

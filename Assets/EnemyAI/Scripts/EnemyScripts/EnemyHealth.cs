@@ -79,7 +79,9 @@ namespace EnemyAI
 				UpdateHealthBar();
 				// Update FSM related references.
 				controller.variables.feelAlert = true;
-				controller.personalTarget = controller.aimTarget.position;
+				if (controller.aimTarget != null) {
+					controller.personalTarget = controller.aimTarget.position;
+				}
 			}
 			// Time to die.
 			if (health <= 0)
