@@ -856,8 +856,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   actionReleaseInput:
-    leftHandAction: {fileID: -5008559648553705905, guid: c348712bda248c246b8c49b3db54643f, type: 3}
-    rightHandAction: {fileID: 6811388888594470068, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+    leftHandAction: {fileID: 0}
+    rightHandAction: {fileID: 0}
 --- !u!114 &8145242888840158265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2712,8 +2712,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ejectMagazineInput:
-    leftHandAction: {fileID: 5627261202745937291, guid: 5c5bd7b6b05bb3b4f848a4ba2d36e133, type: 3}
-    rightHandAction: {fileID: -69495824017920816, guid: 5c5bd7b6b05bb3b4f848a4ba2d36e133, type: 3}
+    leftHandAction: {fileID: -6129256929027427331, guid: 5c5bd7b6b05bb3b4f848a4ba2d36e133, type: 3}
+    rightHandAction: {fileID: 3207500808672083492, guid: 5c5bd7b6b05bb3b4f848a4ba2d36e133, type: 3}
 --- !u!114 &7439084066500065339
 MonoBehaviour:
   m_ObjectHideFlags: 0
