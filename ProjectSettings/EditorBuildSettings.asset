@@ -5,12 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/FPS.unity
-    guid: 3984c5d5fe985f946ada75ddae8e4786
   - enabled: 1
     path: Assets/Scenes/polat_oda.unity
     guid: b7490c12409da1c4782d6f08101acc1c
+  - enabled: 1
+    path: Assets/Scenes/FPS.unity
+    guid: 3984c5d5fe985f946ada75ddae8e4786
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 205eea77aa837a44b8fb4605a784947b, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 4ee9577d97d5eeb46b89085330410761, type: 2}
